@@ -402,3 +402,26 @@ function rel2abs($content,$base)
     $rel2abs = new rel2Abs();
     return $rel2abs->html($content,$base);
 }
+function findtext($patten, $subject, $find)
+{
+    $i = 0;
+    $m = array();
+    while (1)
+    {
+        if (preg_match($patten, $subject, $m, PREG_OFFSET_CAPTURE, $i))
+        {
+            if (strpos($m[0][0], $find))
+            {
+                return $m[0][0];
+            }
+            else
+            {
+                $i = $m[0][1] + 5;
+            }
+        }
+        else
+        {
+            return '';
+        }
+    }
+}

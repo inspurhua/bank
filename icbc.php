@@ -63,27 +63,10 @@ for ($i = 0, $j = count($url); $i < $j; $i++)
         $snoopy->referer = 'http://www.icbc.com.cn/ICBC/%E7%BD%91%E4%B8%8A%E7%90%86%E8%B4%A2/';
         $snoopy->fetch($detailpage);
         $detailpagecontent = $snoopy->getResults();
-
-        preg_match('/<table[\s\S]*/U', $detailpagecontent, $temp, PREG_OFFSET_CAPTURE, 0);
-        preg_match('/<table[\s\S]*<\/table>/U', $detailpagecontent, $matched, PREG_OFFSET_CAPTURE, $temp[0][1] + 10);
-
-
-        if (strpos($matched[0][0], 'PR') < 1)
-        {
-            preg_match('/<table[\s\S]*<\/table>/U', $detailpagecontent, $old, PREG_OFFSET_CAPTURE, $matched[0][1] + 10);
-            $detail = $old[0][0];
-        }
-        else
-        {
-            $detail = $matched[0][0];
-        }
-
+        
+        $detail = findtext('/<table[\s\S]*<\/table>/U',$detailpagecontent,'PR');
         $product['CONTENT'] = $detail;
-
-
-        $a = get_td_array(($detail));
-
-
+        $a = get_td_array(str_clean($detail));
         $fengxian = '';
         $feng = '';
 
