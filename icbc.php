@@ -54,22 +54,54 @@ for ($i = 0, $j = count($url); $i < $j; $i++)
         $product['ITEM5'] = substr($list[$k]['offerPeriod'], 0, 4) . '-' . substr($list[$k]['offerPeriod'], 4, 2) . '-' . substr($list[$k]['offerPeriod'], 6, 2);
         $product['ITEM6'] = substr($list[$k]['offerPeriod'], 9, 4) . '-' . substr($list[$k]['offerPeriod'], 13, 2) . '-' . substr($list[$k]['offerPeriod'], 15, 2);
 
+         if(!($product['ITEM5'] <= date('Y-m-d') && date('Y-m-d') <= $product['ITEM6'] ))
+         {
+             continue;
+         }
+
         $detailpage = "http://www.icbc.com.cn/ICBCDynamicSite2/money/production_explain.aspx?addStr={$product['PRODUCT_SN'] }.html&productId={$product['PRODUCT_SN'] }&buyflag=1";
         $snoopy->referer = 'http://www.icbc.com.cn/ICBC/%E7%BD%91%E4%B8%8A%E7%90%86%E8%B4%A2/';
         $snoopy->fetch($detailpage);
         $detailpagecontent = $snoopy->getResults();
 
         preg_match('/<table[\s\S]*/U', $detailpagecontent, $temp, PREG_OFFSET_CAPTURE, 0);
-        preg_match('/<table[\s\S]*<\/table>/U', $detailpagecontent, $matched, 0, $temp[0][1] + 10);
+        preg_match('/<table[\s\S]*<\/table>/U', $detailpagecontent, $matched, PREG_OFFSET_CAPTURE, $temp[0][1] + 10);
 
-        $detail = $matched[0];
+
+        if (strpos($matched[0][0], 'PR') < 1)
+        {
+            preg_match('/<table[\s\S]*<\/table>/U', $detailpagecontent, $old, PREG_OFFSET_CAPTURE, $matched[0][1] + 10);
+            $detail = $old[0][0];
+        }
+        else
+        {
+            $detail = $matched[0][0];
+        }
+
         $product['CONTENT'] = $detail;
 
 
         $a = get_td_array(($detail));
 
+
         $fengxian = '';
         $feng = '';
+
+        $shiyi = '';
+        for ($n = 2; $n < 5; $n++)
+        {
+            $a[$n][1] = str_clean($a[$n][1]);
+            $fx = strpos($a[$n][1], '收益');
+            if ($fx > -1)
+            {
+                $shiyi = $a[$n][1];
+                break;
+            }
+            else
+            {
+                continue;
+            }
+        }
 
         for ($n = 2; $n < 5; $n++)
         {
@@ -84,32 +116,55 @@ for ($i = 0, $j = count($url); $i < $j; $i++)
                 continue;
             }
         }
+        $product['PRODUCT_TYPE'] = '';
         switch ($feng)
         {
             case 'PR1':
                 $fengxian = '低风险';
+                if ($shiyi == '非保本浮动收益型')
+                {
+                    $product['PRODUCT_TYPE'] = '040401';
+                }
+                else
+                {
+                    $product['PRODUCT_TYPE'] = '030301';
+                }
                 break;
             case 'PR2':
                 $fengxian = '中低风险';
+                if ($shiyi == '非保本浮动收益型')
+                {
+                    $product['PRODUCT_TYPE'] = '040402';
+                }
+                else
+                {
+                    $product['PRODUCT_TYPE'] = '030302';
+                }
                 break;
             case 'PR3':
                 $fengxian = '中风险';
+                if ($shiyi == '非保本浮动收益型')
+                {
+                    $product['PRODUCT_TYPE'] = '040403';
+                }
                 break;
             case 'PR4':
                 $fengxian = '中高风险';
+                if ($shiyi == '非保本浮动收益型')
+                {
+                    $product['PRODUCT_TYPE'] = '040404';
+                }
                 break;
             case 'PR5':
                 $fengxian = '高风险';
+                if ($shiyi == '非保本浮动收益型')
+                {
+                    $product['PRODUCT_TYPE'] = '040405';
+                }
                 break;
             default:
         }
-
         $product['ITEM4'] = $fengxian;
-        $product['PRODUCT_TYPE'] = ($fengxian == '低风险') ? '030301' : '030302';
-        if(!($product['ITEM5'] <= date('Y-m-d') && date('Y-m-d') <= $product['ITEM6'] ))
-        {
-            continue;
-        }
         $product['BUY_WAY'] = '山东省济南市历下区解放路159号：山东金融超市 电话：0531-66571966';
         $product['BUY_URL'] = $detailpage;
 
