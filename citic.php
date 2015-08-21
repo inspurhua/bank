@@ -108,7 +108,6 @@ foreach ($urls as $url)
                 {
                     $product['PRODUCT_TYPE'] = '030301';
                 }
-
                 break;
             case '较低风险':
                 $fengxian = '中低风险';
@@ -145,11 +144,6 @@ foreach ($urls as $url)
         $db->insert_product($product);
 
         sleep(1);
-    }
-    else
-    {
-        echo $content;
-        die;
     }
 }
 
