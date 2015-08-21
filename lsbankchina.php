@@ -111,8 +111,6 @@ foreach ($list as $url)
     $product['BUY_WAY'] = '山东省济南市历下区解放路159号：山东金融超市 电话：0531-66571966';
     $product['BUY_URL'] = $url;
     $db->insert_product($product);
-
     sleep(1);
-
 }
 
