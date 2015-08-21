@@ -35,14 +35,23 @@ $p2 = '/<table width="100%" border="0" cellspacing="0" cellpadding="0">[\s\S]*<\
 $p3 = '/<table width="100%" border="0" cellspacing="1" cellpadding="0" class="conduct_table">[\s\S]*<\/table>/U';
 function get_type($temp)
 {
-    $begin = strpos($temp, '非保本');
-    if ($begin > -1)
+    $m = array();
+    if (preg_match('/类型为(.*)收益类/U', $temp, $m))
     {
-        return '非保本浮动收益类';
+        return $m[1];
     }
     else
     {
-        return '保本浮动收益类';
+        $a = mb_convert_encoding("类型为", "HTML-ENTITIES", "UTF-8");
+        $b = mb_convert_encoding("收益类", "HTML-ENTITIES", "UTF-8");
+        if (preg_match('/' . $a . '(.*)' . $b . '/U', $temp, $m))
+        {
+            return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES");
+        }
+        else
+        {
+            return '';
+        }
     }
 }
 
@@ -84,14 +93,14 @@ foreach ($urls as $url)
         $fengxian = '';
         $r = '';
         $temp = curlget('https://mall.bank.ecitic.com/fmall/finproduct/' . $item[0][1] . '00.html');
-        $temp = toUTF8($temp);
+        $temp = html2text(toUTF8($temp));
         $r = get_type($temp);
 
         switch ($item[1][3])
         {
             case '低风险':
                 $fengxian = '低风险';
-                if ($r == '非保本浮动收益类')
+                if ($r == '非保本浮动')
                 {
                     $product['PRODUCT_TYPE'] = '040401';
                 }
@@ -103,7 +112,7 @@ foreach ($urls as $url)
                 break;
             case '较低风险':
                 $fengxian = '中低风险';
-                if ($r == '非保本浮动收益类')
+                if ($r == '非保本浮动')
                 {
                     $product['PRODUCT_TYPE'] = '040402';
                 }
@@ -114,7 +123,7 @@ foreach ($urls as $url)
                 break;
             case '中等风险':
                 $fengxian = '中风险';
-                if ($r == '非保本浮动收益类')
+                if ($r == '非保本浮动')
                 {
                     $product['PRODUCT_TYPE'] = '040403';
                 }
