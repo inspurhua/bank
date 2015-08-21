@@ -327,11 +327,11 @@ function json2array($content,$jsonpstr='')
 
 function get_days($content)
 {
-    if(preg_match('/(\d+)天/',$content,$m))
+    if(preg_match('/(\d+)[日天]/',$content,$m))
     {
         return $m[1];
     }
-    if(preg_match('/(\d+)月/',$content,$m))
+    if(preg_match('/(\d+)[月|个月]/',$content,$m))
     {
         return $m[1]*30;
     }
