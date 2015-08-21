@@ -49,10 +49,21 @@ foreach ($urls as $url)
 
         foreach ($a as $item)
         {
+            if (!(strpos($item[5], '全国') > -1 || strpos($item[5], '山东') > -1 || strpos($item[5], '济南') > -1))
+            {
+                continue;
+            }
+            $product['ITEM5'] = get_date($item[3]);
+            $product['ITEM6'] = get_date($item[4]);
+
+            if (!($product['ITEM5'] <= date('Y-m-d') && date('Y-m-d') <= $product['ITEM6']))
+            {
+                continue;
+            }
             $product['PRODUCT_SN'] = $item[1];
             $product['PRODUCT_NAME'] = strpos($item[0], $name) ? $item[0] : $name . $item[0];
-            $product['ORG_ID'] = 'M00000050';
-            $product['ORG_NAME'] = '兴业证券股份有限公司历山路营业部';
+            $product['ORG_ID'] = 'M00000034';
+            $product['ORG_NAME'] = '福建兴业银行历山路支行';
             $product['ORG_TYPE'] = 'YHXY';
             $product['PRODUCT_STATUS'] = '-1';
 
@@ -105,13 +116,7 @@ foreach ($urls as $url)
 
 
             $product['ITEM4'] = $fengxian;
-            $product['ITEM5'] = get_date($item[3]);
-            $product['ITEM6'] = get_date($item[4]);
 
-            if (!($product['ITEM5'] <= date('Y-m-d') && date('Y-m-d') <= $product['ITEM6']))
-            {
-                continue;
-            }
 
             $product['BUY_WAY'] = '山东省济南市历下区解放路159号：山东金融超市 电话：0531-66571966';
             $product['BUY_URL'] = $url;
