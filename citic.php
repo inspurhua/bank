@@ -36,10 +36,12 @@ $p3 = '/<table width="100%" border="0" cellspacing="1" cellpadding="0" class="co
 function get_type($temp)
 {
     $begin = strpos($temp, '非保本');
-    if ($begin>-1)
+    if ($begin > -1)
     {
         return '非保本浮动收益类';
-    }else{
+    }
+    else
+    {
         return '保本浮动收益类';
     }
 }
@@ -85,35 +87,39 @@ foreach ($urls as $url)
         $temp = toUTF8($temp);
         $r = get_type($temp);
 
-
-
         switch ($item[1][3])
         {
             case '低风险':
                 $fengxian = '低风险';
-                if($r =='非保本浮动收益类')
+                if ($r == '非保本浮动收益类')
                 {
                     $product['PRODUCT_TYPE'] = '040401';
-                }else{
+                }
+                else
+                {
                     $product['PRODUCT_TYPE'] = '030301';
                 }
 
                 break;
             case '较低风险':
                 $fengxian = '中低风险';
-                if($r =='非保本浮动收益类')
+                if ($r == '非保本浮动收益类')
                 {
                     $product['PRODUCT_TYPE'] = '040402';
-                }else{
+                }
+                else
+                {
                     $product['PRODUCT_TYPE'] = '030302';
                 }
                 break;
             case '中等风险':
                 $fengxian = '中风险';
-                if($r =='非保本浮动收益类')
+                if ($r == '非保本浮动收益类')
                 {
                     $product['PRODUCT_TYPE'] = '040403';
-                }else{
+                }
+                else
+                {
                     $product['PRODUCT_TYPE'] = '030302';
                 }
                 break;
