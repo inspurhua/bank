@@ -79,17 +79,32 @@ for ($i = 0, $j = count($urls); $i < $j; $i++)
     $product['ITEM1'] = get_rate($table[9][1]);
     $product['ITEM2'] = intval(str_replace(',', '', $table[6][1]));
     $product['ITEM3'] = get_days($table[5][1]);
-
-    $product['ITEM4'] = ($table[6][3] == '较低' || $table[6][3] == '低') ? '低风险' : '中低风险';
-
-    if (strpos($product['PRODUCT_NAME'], '安存宝') > -1 || strpos($product['PRODUCT_NAME'], '多利宝') > -1)
+    switch ($table[6][3])
     {
-        $product['PRODUCT_TYPE'] = ($table[6][3] == '较低' || $table[6][3] == '低') ? '030301' : '030302';
+        case '低':
+            $product['ITEM4'] = '低风险';
+            if (strpos($product['PRODUCT_NAME'], '安存宝') > -1 || strpos($product['PRODUCT_NAME'], '多利宝') > -1)
+            {
+                $product['PRODUCT_TYPE'] = '030301';
+            }
+            else
+            {
+                $product['PRODUCT_TYPE'] = '040401';
+            }
+            break;
+        case '较低':
+            $product['ITEM4'] = '中低风险';
+            if (strpos($product['PRODUCT_NAME'], '安存宝') > -1 || strpos($product['PRODUCT_NAME'], '多利宝') > -1)
+            {
+                $product['PRODUCT_TYPE'] = '030302';
+            }
+            else
+            {
+                $product['PRODUCT_TYPE'] = '040402';
+            }
+            break;
     }
-    else
-    {
-        $product['PRODUCT_TYPE'] = ($table[6][3] == '较低' || $table[6][3] == '低') ? '040401' : '040402';
-    }
+
 
     $product['ITEM5'] = $table[2][1];
     $product['ITEM6'] = $table[3][1];
