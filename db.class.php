@@ -139,7 +139,7 @@ class db
         AND `ITEM5`='{$product['ITEM5']}'
         AND `ITEM6`='{$product['ITEM6']}'";
 
-        if($this->fetchColumn($exits))
+        if ($this->fetchColumn($exits))
         {
             return $affected;
         }
@@ -161,11 +161,13 @@ class db
         return $affected;
     }
 }
+
 function datepad($num)
 {
     $num = strval($num);
-    return (strlen($num)==1)?'0'.$num:$num;
+    return (strlen($num) == 1) ? '0' . $num : $num;
 }
+
 function get_td_array($table)
 {
     $td_array = [];
@@ -196,7 +198,8 @@ function str_clean($content)
 {
     return preg_replace("/\s/", "", $content);
 }
-function curlpost($url,$data,$refer='')
+
+function curlpost($url, $data, $refer = '')
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -204,7 +207,7 @@ function curlpost($url,$data,$refer='')
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_REFERER, $refer );
+    curl_setopt($ch, CURLOPT_REFERER, $refer);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     $return = curl_exec($ch);
@@ -212,7 +215,7 @@ function curlpost($url,$data,$refer='')
     return $return;
 }
 
-function curlget($url,$refer = '')
+function curlget($url, $refer = '')
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -254,17 +257,24 @@ function curlMultiRequest($urls, $options = array())
     curl_multi_close($mh);
     return $results;
 }
-function findNum($str=''){
-	$str=trim($str);
-	if(empty($str)){return '';}
-		$temp=array('1','2','3','4','5','6','7','8','9','0');
-		$result='';
-		for($i=0;$i<strlen($str);$i++){
-			if(in_array($str[$i],$temp)){
-			$result.=$str[$i];
-		}
-	}
-	return $result;
+
+function findNum($str = '')
+{
+    $str = trim($str);
+    if (empty($str))
+    {
+        return '';
+    }
+    $temp = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '0');
+    $result = '';
+    for ($i = 0; $i < strlen($str); $i++)
+    {
+        if (in_array($str[$i], $temp))
+        {
+            $result .= $str[$i];
+        }
+    }
+    return $result;
 }
 
 function get_rate($str)
@@ -284,7 +294,7 @@ function get_rate($str)
             }
             else
             {
-                $index = $first[1]+1;
+                $index = $first[1] + 1;
                 continue;
             }
         }
@@ -294,9 +304,10 @@ function get_rate($str)
             break;
         }
     }
-    $rate = round($rate,2);
+    $rate = round($rate, 2);
     return strval($rate);
 }
+
 function get_links($content)
 {
     $pattern = '/<a(.*?)href="(.*?)"(.*?)>(.*?)<\/a>/i';
@@ -306,102 +317,133 @@ function get_links($content)
 
 function get_date($content)
 {
-    if(preg_match('/(.*)年(.*)月(.*)日/U',$content,$m))
+    if (preg_match('/(.*)年(.*)月(.*)日/U', $content, $m))
     {
-        return $m[1].'-'.(strlen($m[2]) == 1?'0'.$m[2]:$m[2]).'-'.( strlen($m[3]) == 1?'0'.$m[3]:$m[3]);
+        return $m[1] . '-' . (strlen($m[2]) == 1 ? '0' . $m[2] : $m[2]) . '-' . (strlen($m[3]) == 1 ? '0' . $m[3] : $m[3]);
     }
-    if(preg_match('/(.*)\/(.*)\/(.*)/',$content,$m))
+    if (preg_match('/(.*)\/(.*)\/(.*)/', $content, $m))
     {
-        return $m[1].'-'.(strlen($m[2]) == 1?'0'.$m[2]:$m[2]).'-'.(strlen($m[3]) == 1?'0'.$m[3]:$m[3]);
+        return $m[1] . '-' . (strlen($m[2]) == 1 ? '0' . $m[2] : $m[2]) . '-' . (strlen($m[3]) == 1 ? '0' . $m[3] : $m[3]);
     }
 }
-function json2array($content,$jsonpstr='')
+
+function json2array($content, $jsonpstr = '')
 {
     $content = str_clean($content);
-    if ($jsonpstr){
-        $content = str_replace($jsonpstr.'(','',$content);
-        $content = substr($content,0,$content -1);
+    if ($jsonpstr)
+    {
+        $content = str_replace($jsonpstr . '(', '', $content);
+        $content = substr($content, 0, $content - 1);
     }
-    return json_decode($content,true);
+    return json_decode($content, true);
 }
 
 function get_days($content)
 {
-    if(preg_match('/(\d+)[日天]/',$content,$m))
+    if (preg_match('/(\d+)[日天]/', $content, $m))
     {
         return $m[1];
     }
-    if(preg_match('/(\d+)[月|个月]/',$content,$m))
+    if (preg_match('/(\d+)[月|个月]/', $content, $m))
     {
-        return $m[1]*30;
+        return $m[1] * 30;
     }
-    if(preg_match('/(\d+)年/',$content,$m))
+    if (preg_match('/(\d+)年/', $content, $m))
     {
-        return $m[1]*365;
+        return $m[1] * 365;
     }
 }
-class rel2Abs{
-    function html($html,$baseurl){
-        $this->baseurl =$baseurl;
-        return preg_replace_callback('#((href|src)\s*=\s*)("[^\":^\\"]*"|\'[^\":^\\\']*\')#', array($this, 'preg'), $html );
+
+class rel2Abs
+{
+    function html($html, $baseurl)
+    {
+        $this->baseurl = $baseurl;
+        return preg_replace_callback('#((href|src)\s*=\s*)("[^\":^\\"]*"|\'[^\":^\\\']*\')#', array($this, 'preg'), $html);
     }
-    function url($baseurl, $rel){
+
+    function url($baseurl, $rel)
+    {
         return $this->createUri($baseurl, '', $rel);
     }
-    function preg($m){
+
+    function preg($m)
+    {
         return $this->createUri($this->baseurl, $m[1], $m[3]);
     }
-    function createUri( $base = '', $pre='', $relational_path = '' ) {
-        if (strpos($relational_path, '\'') !== FALSE){
+
+    function createUri($base = '', $pre = '', $relational_path = '')
+    {
+        if (strpos($relational_path, '\'') !== FALSE)
+        {
             $quote = '\'';
-        }else{
+        }
+        else
+        {
             $quote = '"';
         }
         $relational_path = trim($relational_path, '\'\"');
-        $parse = array (
+        $parse = array(
             'scheme' => null,
             'host' => null,
             'path' => null,
         );
-        $parse = parse_url ( $base );
+        $parse = parse_url($base);
 
-        if ( strpos( $parse['path'], '/', ( strlen( $parse['path'] ) - 1 ) ) !== FALSE ) {
+        if (strpos($parse['path'], '/', (strlen($parse['path']) - 1)) !== FALSE)
+        {
             $parse['path'] .= '.';
         }
-        if ( strpos( $relational_path, ':' ) !== FALSE ) {
-            return $pre. $quote. $relational_path. $quote;
+        if (strpos($relational_path, ':') !== FALSE)
+        {
+            return $pre . $quote . $relational_path . $quote;
         }
-        elseif( strpos( $relational_path, '//' ) !== FALSE ){
-            return $pre. $quote.'http:'. $relational_path. $quote;
+        elseif (strpos($relational_path, '//') !== FALSE)
+        {
+            return $pre . $quote . 'http:' . $relational_path . $quote;
         }
-        elseif ( preg_match ( "#^/.*$#", $relational_path ) ) {
-            $basePath = explode ( '/', dirname ( $parse ['path'] ) );
+        elseif (preg_match("#^/.*$#", $relational_path))
+        {
+            $basePath = explode('/', dirname($parse ['path']));
             $path = str_replace("\\", "", implode("/", $basePath));
-            return $pre. $quote.$parse['scheme'] . '://' . $parse ['host'] .$path. $relational_path. $quote;
-        } else {
-            $basePath = explode ( '/', dirname ( $parse ['path'] ) );
-            $relPath = explode ( '/', $relational_path );
-            foreach ( $relPath as $relDirName ) {
-                if ($relDirName == '.') {
-                    array_shift ( $basePath );
-                    array_unshift ( $basePath, '' );
-                } elseif ($relDirName == '..') {
-                    array_pop ( $basePath );
-                    if ( count ( $basePath ) == 0 ) { $basePath = array( '' ); }
-                } else {
-                    array_push ( $basePath, $relDirName );
+            return $pre . $quote . $parse['scheme'] . '://' . $parse ['host'] . $path . $relational_path . $quote;
+        }
+        else
+        {
+            $basePath = explode('/', dirname($parse ['path']));
+            $relPath = explode('/', $relational_path);
+            foreach ($relPath as $relDirName)
+            {
+                if ($relDirName == '.')
+                {
+                    array_shift($basePath);
+                    array_unshift($basePath, '');
+                }
+                elseif ($relDirName == '..')
+                {
+                    array_pop($basePath);
+                    if (count($basePath) == 0)
+                    {
+                        $basePath = array('');
+                    }
+                }
+                else
+                {
+                    array_push($basePath, $relDirName);
                 }
             }
             $path = str_replace("\\", "", implode("/", $basePath));
-            return $pre. $quote. $parse ['scheme']. '://'. $parse ['host'] .$path .$quote;
+            return $pre . $quote . $parse ['scheme'] . '://' . $parse ['host'] . $path . $quote;
         }
     }
 }
-function rel2abs($content,$base)
+
+function rel2abs($content, $base)
 {
     $rel2abs = new rel2Abs();
-    return $rel2abs->html($content,$base);
+    return $rel2abs->html($content, $base);
 }
+
 function findtext($patten, $subject, $find)
 {
     $i = 0;
@@ -424,4 +466,79 @@ function findtext($patten, $subject, $find)
             return '';
         }
     }
+}
+
+function html2text($document)
+{
+
+    // I didn't use preg eval (//e) since that is only available in PHP 4.0.
+    // so, list your entities one by one here. I included some of the
+    // more common ones.
+
+    $search = array("'<script[^>]*?>.*?</script>'si", // strip out javascript
+        "'{.*?}'si",
+        "'<[\/\!]*?[^<>]*?>'si", // strip out html tags
+        "'([\r\n])[\s]+'", // strip out white space
+        "'&(quot|#34|#034|#x22);'i", // replace html entities
+        "'&(amp|#38|#038|#x26);'i", // added hexadecimal values
+        "'&(lt|#60|#060|#x3c);'i",
+        "'&(gt|#62|#062|#x3e);'i",
+        "'&(nbsp|#160|#xa0);'i",
+        "'&(iexcl|#161);'i",
+        "'&(cent|#162);'i",
+        "'&(pound|#163);'i",
+        "'&(copy|#169);'i",
+        "'&(reg|#174);'i",
+        "'&(deg|#176);'i",
+        "'&(#39|#039|#x27);'",
+        "'&(euro|#8364);'i", // europe
+        "'&a(uml|UML);'", // german
+        "'&o(uml|UML);'",
+        "'&u(uml|UML);'",
+        "'&A(uml|UML);'",
+        "'&O(uml|UML);'",
+        "'&U(uml|UML);'",
+        "'&szlig;'i",
+    );
+    $replace = array("",
+        "", "",
+        "\\1",
+        "\"",
+        "&",
+        "<",
+        ">",
+        " ",
+        chr(161),
+        chr(162),
+        chr(163),
+        chr(169),
+        chr(174),
+        chr(176),
+        chr(39),
+        chr(128),
+        "ä",
+        "ö",
+        "ü",
+        "Ä",
+        "Ö",
+        "Ü",
+        "ß",
+    );
+
+    $text = preg_replace($search, $replace, $document);
+
+    return $text;
+}
+
+function toUTF8($data)
+{
+    if (!empty($data))
+    {
+        $filetype = mb_detect_encoding($data, array('UTF-8', 'GBK', 'CP936', 'BIG5'));
+        if ($filetype != 'UTF-8')
+        {
+            $data = mb_convert_encoding($data, 'UTF-8', $filetype);
+        }
+    }
+    return $data;
 }
