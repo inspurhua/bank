@@ -52,7 +52,7 @@ foreach ($list as $url)
 
     $item = get_td_array(str_clean($content));
 
-    $product['PRODUCT_SN'] = 'LS'.$item[1][3];
+    $product['PRODUCT_SN'] = $item[1][3];
 
     $product['PRODUCT_NAME'] = $item[1][1];
     $product['ORG_ID'] = 'M00000169';
