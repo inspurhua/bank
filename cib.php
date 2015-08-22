@@ -152,6 +152,5 @@ foreach ($urls as $url)
     {
         echo $name;
     }
-
 }
 
