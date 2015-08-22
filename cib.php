@@ -42,6 +42,44 @@ foreach ($urls as $url)
     if (preg_match($p1, $c, $m))
     {
         $a = get_td_array(str_clean($m[0]));
+        $order = array();
+
+        for ($i = 0, $count = count($a[0]); $i < $count; $i++)
+        {
+            if (strpos($a[0][$i], '期次款数') > -1)
+            {
+                $order['PRODUCT_NAME'] = $i;
+            }
+            elseif (strpos($a[0][$i], '销售编号') > -1 || strpos($a[0][$i], '销售编码') > -1)
+            {
+                $order['PRODUCT_SN'] = $i;
+            }
+            elseif (strpos($a[0][$i], '申购起始日') > -1 || strpos($a[0][$i], '认购起始日') > -1)
+            {
+                $order['ITEM5'] = $i;
+            }
+            elseif (strpos($a[0][$i], '申购结束日') > -1 || strpos($a[0][$i], '认购结束日') > -1)
+            {
+                $order['ITEM6'] = $i;
+            }
+            elseif (strpos($a[0][$i], '期限') > -1)
+            {
+                $order['ITEM3'] = $i;
+            }
+            elseif (strpos($a[0][$i], '起购金额') > -1)
+            {
+                $order['ITEM2'] = $i;
+            }
+            elseif (strpos($a[0][$i], '收益率') > -1)
+            {
+                $order['ITEM1'] = $i;
+            }
+            elseif (strpos($a[0][$i], '产品类型') > -1)
+            {
+                $order['保本吗'] = $i;
+            }
+        }
+
         $a = array_filter($a, function ($pra)
         {
             return preg_match('/\d+/', $pra[0]);
@@ -49,19 +87,15 @@ foreach ($urls as $url)
 
         foreach ($a as $item)
         {
-            if (!(strpos($item[5], '全国') > -1 || strpos($item[5], '山东') > -1 || strpos($item[5], '济南') > -1))
-            {
-                continue;
-            }
-            $product['ITEM5'] = get_date($item[3]);
-            $product['ITEM6'] = get_date($item[4]);
+            $product['ITEM5'] = get_date($item[$order['ITEM5']]);
+            $product['ITEM6'] = get_date($item[$order['ITEM6']]);
 
             if (!($product['ITEM5'] <= date('Y-m-d') && date('Y-m-d') <= $product['ITEM6']))
             {
                 continue;
             }
-            $product['PRODUCT_SN'] = $item[1];
-            $product['PRODUCT_NAME'] = strpos($item[0], $name) ? $item[0] : $name . $item[0];
+            $product['PRODUCT_SN'] = $item[$order['PRODUCT_SN']];
+            $product['PRODUCT_NAME'] = strpos($item[$order['PRODUCT_NAME']], $name) ? $item[$order['PRODUCT_NAME']] : $name . $item[$order['PRODUCT_NAME']];
             $product['ORG_ID'] = 'M00000034';
             $product['ORG_NAME'] = '福建兴业银行历山路支行';
             $product['ORG_TYPE'] = 'YHXY';
@@ -70,7 +104,7 @@ foreach ($urls as $url)
             $fengxian = '';
             if ($name == '天天万利宝')
             {
-                if (strpos($item[0], 'M') > -1)
+                if (strpos($product['PRODUCT_NAME'], 'M') > -1)
                 {
                     $fengxian = '低风险';
                     $product['PRODUCT_TYPE'] = '030301';
@@ -90,34 +124,20 @@ foreach ($urls as $url)
             $product['CONTENT'] = $m[0];
             $product['ATTR_TYPE'] = '01';
 
-            if ($name == '天天万利宝')
+            $product['ITEM1'] = get_rate($item[$order['ITEM1']]);
+            if (preg_match('/(.*)万/U', $item[$order['ITEM2']], $mat))
             {
-                $product['ITEM1'] = get_rate($item[12]);
-                preg_match('/(.*)万/U', $item[11], $mat);
                 $product['ITEM2'] = $mat[1] * 10000;
-                $product['ITEM3'] = $item[9];
-
-                if (strpos($item[0], '天天万利宝') > 0)
-                {
-                    array_splice($item, 0, 3, [$item[0], $item[1], '']);
-                    $product['ITEM1'] = get_rate($item[10]);
-                    preg_match('/(.*)万/U', $item[9], $mat);
-                    $product['ITEM2'] = $mat[1] * 10000;
-                    $product['ITEM3'] = $item[7];
-                }
             }
-            elseif ($name == '天天万汇通')
+            else
             {
-                $product['ITEM1'] = get_rate($item[13]);
-                preg_match('/(.*)美元/U', $item[12], $mat);
+                preg_match('/(.*)美元/U', $item[$order['ITEM2']], $mat);
                 $product['ITEM2'] = str_replace(',', '', $mat[1]);
-                $product['ITEM3'] = $item[9];
             }
 
+            $product['ITEM3'] = $item[$order['ITEM3']];
 
             $product['ITEM4'] = $fengxian;
-
-
             $product['BUY_WAY'] = '山东省济南市历下区解放路159号：山东金融超市 电话：0531-66571966';
             $product['BUY_URL'] = $url;
 
