@@ -94,6 +94,10 @@ foreach ($urls as $url)
             {
                 continue;
             }
+            if( $item[$order['保本吗'] ]== '净值型')
+            {
+                continue;
+            }
             $product['PRODUCT_SN'] = $item[$order['PRODUCT_SN']];
             $product['PRODUCT_NAME'] = strpos($item[$order['PRODUCT_NAME']], $name) ? $item[$order['PRODUCT_NAME']] : $name . $item[$order['PRODUCT_NAME']];
             $product['ORG_ID'] = 'M00000034';
