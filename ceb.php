@@ -56,6 +56,7 @@ foreach ($urls as & $item)
     $item = 'http://www.cebbank.com' . $item;
 }
 
+
 $p = '/<table class="table-infor"[\s\S]*<\/table>/U';
 
 for ($i = 0, $j = count($urls); $i < $j; $i++)
@@ -63,8 +64,9 @@ for ($i = 0, $j = count($urls); $i < $j; $i++)
     $snoopy->fetch($urls[$i]);
     $content = $snoopy->getResults();
     preg_match_all($p, $content, $matched);
-    $content = str_clean(($matched[0][0]));
-    $table = get_td_array($content);
+    $content = $matched[0][0];
+
+    $table = get_td_array(str_clean($content));
 
     $product['PRODUCT_SN'] = $table[1][1];
     $product['PRODUCT_NAME'] = $table[0][0];
@@ -72,18 +74,20 @@ for ($i = 0, $j = count($urls); $i < $j; $i++)
     $product['ORG_NAME'] = '中国光大银行历山路支行';
     $product['ORG_TYPE'] = 'YHGD';
     $product['PRODUCT_STATUS'] = '-1';
-
     $product['CONTENT'] = $content;
-
     $product['ATTR_TYPE'] = '01';
-    $product['ITEM1'] = get_rate($table[9][1]);
+    $product['ITEM1'] = get_cib_rate($table[9][1]);
+
     $product['ITEM2'] = intval(str_replace(',', '', $table[6][1]));
     $product['ITEM3'] = get_days($table[5][1]);
+
+    $type = strpos($table[8][1],'非保本')>-1?'非保本':'保本';
     switch ($table[6][3])
     {
         case '低':
             $product['ITEM4'] = '低风险';
-            if (strpos($product['PRODUCT_NAME'], '安存宝') > -1 || strpos($product['PRODUCT_NAME'], '多利宝') > -1)
+
+            if ($type=='保本')
             {
                 $product['PRODUCT_TYPE'] = '030301';
             }
@@ -94,7 +98,7 @@ for ($i = 0, $j = count($urls); $i < $j; $i++)
             break;
         case '较低':
             $product['ITEM4'] = '中低风险';
-            if (strpos($product['PRODUCT_NAME'], '安存宝') > -1 || strpos($product['PRODUCT_NAME'], '多利宝') > -1)
+            if ($type=='保本')
             {
                 $product['PRODUCT_TYPE'] = '030302';
             }
@@ -104,7 +108,6 @@ for ($i = 0, $j = count($urls); $i < $j; $i++)
             }
             break;
     }
-
 
     $product['ITEM5'] = $table[2][1];
     $product['ITEM6'] = $table[3][1];
@@ -123,4 +126,49 @@ for ($i = 0, $j = count($urls); $i < $j; $i++)
     $db->insert_product($product);
 
     sleep(1);
+}
+function get_cib_rate($str)
+{
+    $a = array();
+    $i = strpos($str, '%');
+    $k = strrpos($str, '%');
+    $j = $i;
+    while ($j)
+    {
+        $j = $j - 1;
+        $char = substr($str, $j, 1);
+        if (is_numeric($char) || $char == '.')
+        {
+            $a[] = $char;
+        }
+        else
+        {
+            break;
+        }
+    }
+    $begin = rtrim(implode('', array_reverse($a)),'0');
+    $a = [];
+    if ($i == $k)
+    {
+        return $begin;
+    }
+    else
+    {
+        $j = $k;
+        while ($j)
+        {
+            $j = $j - 1;
+            $char = substr($str, $j, 1);
+            if (is_numeric($char) || $char == '.')
+            {
+                $a[] = $char;
+            }
+            else
+            {
+                break;
+            }
+        }
+        $end = rtrim(implode('', array_reverse($a)),'0');
+        return $begin . '-' . $end;;
+    }
 }
