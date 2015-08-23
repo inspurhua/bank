@@ -50,7 +50,7 @@ foreach ($urls as $url)
             {
                 $order['PRODUCT_NAME'] = $i;
             }
-            elseif (strpos($a[0][$i], '销售编号') > -1 ||strpos($a[0][$i], '销售编码') > -1)
+            elseif (strpos($a[0][$i], '销售编号') > -1 || strpos($a[0][$i], '销售编码') > -1)
             {
                 $order['PRODUCT_SN'] = $i;
             }
@@ -79,7 +79,6 @@ foreach ($urls as $url)
                 $order['保本吗'] = $i;
             }
         }
-
         $a = array_filter($a, function ($pra)
         {
             return preg_match('/\d+/', $pra[0]);
@@ -94,16 +93,17 @@ foreach ($urls as $url)
             {
                 continue;
             }
-            if( $item[$order['保本吗'] ]== '净值型')
-            {
-                continue;
-            }
             $product['PRODUCT_SN'] = $item[$order['PRODUCT_SN']];
             $product['PRODUCT_NAME'] = strpos($item[$order['PRODUCT_NAME']], $name) ? $item[$order['PRODUCT_NAME']] : $name . $item[$order['PRODUCT_NAME']];
             $product['ORG_ID'] = 'M00000034';
             $product['ORG_NAME'] = '福建兴业银行历山路支行';
             $product['ORG_TYPE'] = 'YHXY';
             $product['PRODUCT_STATUS'] = '-1';
+            if( $item[$order['保本吗'] ]== '净值型')
+            {
+                continue;
+            }
+
 
             $fengxian = '';
             if ($name == '天天万利宝')
@@ -125,7 +125,7 @@ foreach ($urls as $url)
                 $product['PRODUCT_TYPE'] = '040402';
             }
 
-            $product['CONTENT'] = $m[0];
+            $product['CONTENT'] = str_replace('border="0"','style="border:1px solid #ccc;" rules="all"',$m[0]);
             $product['ATTR_TYPE'] = '01';
 
             $product['ITEM1'] = get_rate($item[$order['ITEM1']]);
@@ -156,5 +156,6 @@ foreach ($urls as $url)
     {
         echo $name;
     }
+
 }
 
