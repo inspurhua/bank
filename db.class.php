@@ -340,15 +340,15 @@ function json2array($content, $jsonpstr = '')
 
 function get_days($content)
 {
-    if (preg_match('/(\d+)[日天]/', $content, $m))
+    if (preg_match('/(\d+)(\x{65e5}|\x{5929})/u', $content, $m))
     {
         return $m[1];
     }
-    if (preg_match('/(\d+)[月|个月]/', $content, $m))
+    if (preg_match('/(\d+)(\x{6708}|\x{4e2a}\x{6708})/u', $content, $m))
     {
         return $m[1] * 30;
     }
-    if (preg_match('/(\d+)年/', $content, $m))
+    if (preg_match('/(\d+)\x{5e74}/u', $content, $m))
     {
         return $m[1] * 365;
     }
