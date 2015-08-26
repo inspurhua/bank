@@ -60,7 +60,7 @@ for ($i = 0, $j = count($urls); $i < $j; $i++)
     $product['CONTENT'] = rel2abs($detail,'http://ewealth.abchina.com/fs/');
 
     $product['ATTR_TYPE'] = '01';
-    $product['ITEM1'] = str_replace('预期年化收益率','',get_rate($table[9][1]));
+    $product['ITEM1'] = str_replace(['预期年化收益率','%','％'],'',$table[9][1]);
     preg_match('/起购金额varm=(.*);/U',$table[15][1],$mat);
     $product['ITEM2'] =$mat[1];
     $product['ITEM3'] = str_replace(['投资期限','天'],['',''],$table[9][0]);
