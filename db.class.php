@@ -21,6 +21,7 @@ class db
         else
         {
             $this->dbLink->query('SET NAMES ' . $config['charset']);
+            mysqli_autocommit($this->dbLink,true);
         }
 
         return true;
