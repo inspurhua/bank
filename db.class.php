@@ -220,14 +220,29 @@ function curlget($url, $refer = '')
 {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_HEADER, 1);
+    curl_setopt($ch, CURLOPT_NOBODY, 0);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_REFERER, $refer);
+    $refer && curl_setopt($ch, CURLOPT_REFERER, $refer);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    curl_setopt($ch , CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.93 Safari/537.36' ) ; 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+
     $return = curl_exec($ch);
+
+    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == '200')
+    {
+        list($header, $body) = explode("\r\n\r\n", $return, 2);
+    }
+
     curl_close($ch);
-    return $return;
+    preg_match('/charset=(\w+)/',$header,$m);
+
+    if (strtolower($m[1]) !='utf-8'){
+        $body = iconv($m[1],"utf-8//IGNORE",$body);
+    }
+    return $body;
 }
 
 function curlMultiRequest($urls, $options = array())
