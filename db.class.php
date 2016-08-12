@@ -245,6 +245,35 @@ function curlget($url, $refer = '')
     return $body;
 }
 
+ function move_uploaded_files($file, $target, $url = null)
+    {
+        $url = isset($url) ? $url : "http://139.129.223.136/vgicfile/fileupload.php";
+
+        $ch   = curl_init();
+        $data = ['file' => '@' . $file, 'target' => $target];
+        if (class_exists('\CURLFile'))
+        {
+            $data['file'] = new \CURLFile(realpath($file));
+            curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
+        }
+        else
+        {
+            $data['file'] = '@' . realpath($file);
+            curl_setopt($ch, CURLOPT_SAFE_UPLOAD, false);
+        }
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        if ($error = curl_error($ch))
+        {
+            return false;
+        }
+        curl_close($ch);
+        return $result == "yes";
+    }
 function curlMultiRequest($urls, $options = array())
 {
     $ch = array();
