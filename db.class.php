@@ -237,11 +237,14 @@ function curlget($url, $refer = '')
     }
 
     curl_close($ch);
-    preg_match('/charset=(\w+)/',$header,$m);
-
-    if (strtolower($m[1]) !='utf-8'){
-        $body = iconv($m[1],"utf-8//IGNORE",$body);
-    }
+    if(preg_match('/charset=(.*)/',$header,$m))
+	{
+		$m[1] = strtolower(str_replace(array("\n","\r","\r\n"),'',$m[1]));
+		var_dump($m[1]);
+		if ($m[1] !='utf-8'){
+			$body = mb_convert_encoding($body, 'utf-8',$m[1]);
+		}
+	}
     return $body;
 }
 
