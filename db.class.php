@@ -218,34 +218,54 @@ function curlpost($url, $data, $refer = '')
 
 function curlget($url, $refer = '')
 {
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_HEADER, 1);
-    curl_setopt($ch, CURLOPT_NOBODY, 0);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    $refer && curl_setopt($ch, CURLOPT_REFERER, $refer);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch , CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.93 Safari/537.36' ) ; 
-    curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_HEADER, 1);
+	curl_setopt($ch, CURLOPT_NOBODY, 0);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	$refer && curl_setopt($ch, CURLOPT_REFERER, $refer);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+	curl_setopt($ch , CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.93 Safari/537.36' ) ;
+	curl_setopt($ch, CURLOPT_TIMEOUT, 3);
 
-    $return = curl_exec($ch);
+	while(true)
+	{
+		$return = curl_exec($ch);
+		if($return)
+		{
+			break;
+		}
+		else
+		{
+			sleep(3);
+		}
+	}
+	if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == '200')
+	{
+		list($header, $body) = explode("\r\n\r\n", $return, 2);
+	}
 
-    if (curl_getinfo($ch, CURLINFO_HTTP_CODE) == '200')
-    {
-        list($header, $body) = explode("\r\n\r\n", $return, 2);
-    }
+	curl_close($ch);
 
-    curl_close($ch);
-    if(preg_match('/charset=(.*)/',$header,$m))
+	if(preg_match('/charset=(.*)/',$header,$m))
 	{
 		$m[1] = strtolower(str_replace(array("\n","\r","\r\n"),'',$m[1]));
-		var_dump($m[1]);
 		if ($m[1] !='utf-8'){
 			$body = mb_convert_encoding($body, 'utf-8',$m[1]);
 		}
+	}else{
+		$ok = preg_match('/charset="(.*)"/',$body,$m);
+		if($ok)
+		{
+			echo $m[1];
+			$m[1] = strtolower(str_replace(array("\n","\r","\r\n"),'',$m[1]));
+			if ($m[1] !='utf-8'){
+				$body = mb_convert_encoding($body, 'utf-8',$m[1]);
+			}
+		}
 	}
-    return $body;
+	return $body;
 }
 
  function move_uploaded_files($file, $target, $url = null)
